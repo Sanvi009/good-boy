@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <base href="/good-boy/">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="/good-boy/">
     <title>Good Boy Hindi - Watch Online</title>
     <style>
         * {
@@ -224,7 +224,7 @@
         <div id="continueWatching" class="continue-watching" style="display: none;">
             <h2>▶ Continue Watching</h2>
             <div class="continue-card" onclick="goToEpisode(this.dataset.ep)">
-                <img src="/thumbnails/" alt="Episode thumbnail" id="continueThumb">
+                <img src="" alt="Episode thumbnail" id="continueThumb">
                 <div class="continue-info">
                     <h3 id="continueTitle"></h3>
                     <p>Click to resume</p>
@@ -251,7 +251,7 @@
             
             item.innerHTML = `
                 <div class="episode-thumb">
-                    <img src="/thumbnails/episode-${i}.jpg" alt="Episode ${i}" loading="lazy">
+                    <img src="thumbnails/episode-${i}.jpg" alt="Episode ${i}" loading="lazy">
                 </div>
                 <div class="episode-info">
                     <h3>Good Boy Hindi Episode ${i}</h3>
@@ -267,13 +267,13 @@
         const lastEpisode = localStorage.getItem('lastWatchedEpisode');
         if (lastEpisode && lastEpisode >= 1 && lastEpisode <= TOTAL_EPISODES) {
             continueWatching.style.display = 'block';
-            document.getElementById('continueThumb').src = `/thumbnails/episode-${lastEpisode}.jpg`;
+            document.getElementById('continueThumb').src = `thumbnails/episode-${lastEpisode}.jpg`;
             document.getElementById('continueTitle').textContent = `Good Boy Hindi Episode ${lastEpisode}`;
             continueWatching.querySelector('.continue-card').dataset.ep = lastEpisode;
         }
 
         function goToEpisode(episode) {
-            window.location.href = `/player/index.html?ep=${episode}`;
+            window.location.href = `player/index.html?ep=${episode}`;
         }
     </script>
 </body>
