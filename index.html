@@ -1,1 +1,279 @@
-hello
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Good Boy Hindi - Watch Online</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #0f0f0f;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            border-bottom: 1px solid #333;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ff6b35, #ff2e63);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: #888;
+            font-size: 1.1rem;
+        }
+
+        .continue-watching {
+            margin-bottom: 40px;
+        }
+
+        .continue-watching h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #ff6b35;
+        }
+
+        .continue-card {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid #ff6b35;
+        }
+
+        .continue-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 20px rgba(255, 107, 53, 0.3);
+        }
+
+        .continue-card img {
+            width: 160px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .continue-info h3 {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+        }
+
+        .continue-info p {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .episode-list h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #ff6b35;
+        }
+
+        .episode-item {
+            background: #1a1a1a;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .episode-item:hover {
+            transform: translateX(10px);
+            background: #222;
+            box-shadow: 0 5px 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .episode-thumb {
+            width: 200px;
+            height: 113px;
+            flex-shrink: 0;
+        }
+
+        .episode-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .episode-info {
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        .episode-info h3 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .episode-info p {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .watch-btn {
+            background: #ff6b35;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-right: 20px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .watch-btn:hover {
+            background: #ff2e63;
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .continue-card img {
+                width: 120px;
+                height: 68px;
+            }
+
+            .episode-thumb {
+                width: 140px;
+                height: 79px;
+            }
+
+            .episode-info {
+                padding: 15px;
+            }
+
+            .watch-btn {
+                padding: 8px 15px;
+                font-size: 0.8rem;
+                margin-right: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .continue-card {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .continue-card img {
+                width: 200px;
+                height: 113px;
+            }
+
+            .episode-item {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .episode-thumb {
+                width: 100%;
+                height: auto;
+                max-height: 200px;
+            }
+
+            .watch-btn {
+                margin: 10px auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Good Boy Hindi</h1>
+            <p>All 32 Episodes - Free Streaming</p>
+        </div>
+
+        <div id="continueWatching" class="continue-watching" style="display: none;">
+            <h2>▶ Continue Watching</h2>
+            <div class="continue-card" onclick="goToEpisode(this.dataset.ep)">
+                <img src="" alt="Episode thumbnail" id="continueThumb">
+                <div class="continue-info">
+                    <h3 id="continueTitle"></h3>
+                    <p>Click to resume</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="episode-list">
+            <h2>All Episodes</h2>
+            <div id="episodeList"></div>
+        </div>
+    </div>
+
+    <script>
+        const TOTAL_EPISODES = 32;
+        const episodeList = document.getElementById('episodeList');
+        const continueWatching = document.getElementById('continueWatching');
+
+        // Generate episode list
+        for (let i = 1; i <= TOTAL_EPISODES; i++) {
+            const item = document.createElement('div');
+            item.className = 'episode-item';
+            item.onclick = () => goToEpisode(i);
+            
+            item.innerHTML = `
+                <div class="episode-thumb">
+                    <img src="/thumbnails/episode-${i}.jpg" alt="Episode ${i}" loading="lazy">
+                </div>
+                <div class="episode-info">
+                    <h3>Good Boy Hindi Episode ${i}</h3>
+                    <p>Episode ${i} of ${TOTAL_EPISODES}</p>
+                </div>
+                <button class="watch-btn">Watch Now</button>
+            `;
+            
+            episodeList.appendChild(item);
+        }
+
+        // Check continue watching
+        const lastEpisode = localStorage.getItem('lastWatchedEpisode');
+        if (lastEpisode && lastEpisode >= 1 && lastEpisode <= TOTAL_EPISODES) {
+            continueWatching.style.display = 'block';
+            document.getElementById('continueThumb').src = `/thumbnails/episode-${lastEpisode}.jpg`;
+            document.getElementById('continueTitle').textContent = `Good Boy Hindi Episode ${lastEpisode}`;
+            continueWatching.querySelector('.continue-card').dataset.ep = lastEpisode;
+        }
+
+        function goToEpisode(episode) {
+            window.location.href = `/player/index.html?ep=${episode}`;
+        }
+    </script>
+</body>
+</html>
