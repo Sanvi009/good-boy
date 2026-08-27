@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="/good-boy/">
     <title>Good Boy Hindi - Player</title>
     <style>
         * {
@@ -207,7 +208,7 @@
 
         <div class="player-controls">
             <div class="control-group">
-                <a href="/index.html" class="back-btn">← Home</a>
+                <a href="index.html" class="back-btn">← Home</a>
             </div>
             <div class="control-group">
                 <button class="nav-btn" id="prevBtn" onclick="prevEpisode()">← Previous</button>
@@ -252,7 +253,7 @@
             videoPlayer.src = `${BASE_URL}/episode-${ep}.mp4`;
             
             // Update URL without reload
-            window.history.pushState({}, '', `/player/index.html?ep=${ep}`);
+            window.history.pushState({}, '', `player/index.html?ep=${ep}`);
             
             // Save to localStorage
             localStorage.setItem('lastWatchedEpisode', ep);
@@ -279,7 +280,7 @@
                 card.onclick = () => loadEpisode(i);
                 
                 card.innerHTML = `
-                    <img class="rec-thumb" src="/thumbnails/episode-${i}.jpg" alt="Episode ${i}" loading="lazy">
+                    <img class="rec-thumb" src="thumbnails/episode-${i}.jpg" alt="Episode ${i}" loading="lazy">
                     <div class="rec-info">
                         <h3>Good Boy Hindi Episode ${i}</h3>
                         <p>Click to play</p>
