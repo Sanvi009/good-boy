@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Good Boy Hindi - Player</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #0f0f0f;
+            color: #fff;
+        }
+
+        .player-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        video {
+            width: 100%;
+            max-height: 75vh;
+            display: block;
+            background: #000;
+        }
+
+        .player-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            background: #1a1a1a;
+            border-radius: 0 0 12px 12px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            background: #ff6b35;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .nav-btn:hover {
+            background: #ff2e63;
+            transform: scale(1.05);
+        }
+
+        .nav-btn:disabled {
+            background: #444;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .back-btn {
+            background: transparent;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background: #333;
+            border-color: #888;
+        }
+
+        .episode-title {
+            text-align: center;
+            padding: 20px 0;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .recommendations {
+            margin-top: 30px;
+        }
+
+        .recommendations h2 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: #ff6b35;
+        }
+
+        .recommendation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .rec-card {
+            background: #1a1a1a;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .rec-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(255, 107, 53, 0.3);
+        }
+
+        .rec-thumb {
+            width: 100%;
+            height: 113px;
+            object-fit: cover;
+        }
+
+        .rec-info {
+            padding: 12px;
+        }
+
+        .rec-info h3 {
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .rec-info p {
+            color: #888;
+            font-size: 0.8rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2rem;
+            color: #888;
+        }
+
+        @media (max-width: 768px) {
+            .player-container {
+                padding: 10px;
+            }
+
+            .player-controls {
+                padding: 10px;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .control-group {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .nav-btn {
+                padding: 8px 15px;
+                font-size: 0.8rem;
+            }
+
+            .episode-title {
+                font-size: 1.2rem;
+                padding: 15px 0;
+            }
+
+            .recommendation-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 10px;
+            }
+
+            .rec-thumb {
+                height: 85px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="player-container">
+        <div class="episode-title" id="episodeTitle">Loading...</div>
+        
+        <div class="video-wrapper">
+            <video id="videoPlayer" controls autoplay playsinline></video>
+        </div>
+
+        <div class="player-controls">
+            <div class="control-group">
+                <a href="/index.html" class="back-btn">← Home</a>
+            </div>
+            <div class="control-group">
+                <button class="nav-btn" id="prevBtn" onclick="prevEpisode()">← Previous</button>
+                <button class="nav-btn" id="nextBtn" onclick="nextEpisode()">Next →</button>
+            </div>
+            <div class="control-group">
+                <button class="nav-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+            </div>
+        </div>
+
+        <div class="recommendations">
+            <h2>Up Next</h2>
+            <div class="recommendation-grid" id="recGrid"></div>
+        </div>
+    </div>
+
+    <script>
+        const TOTAL_EPISODES = 32;
+        const BASE_URL = 'https://pub-07d8d60145fc4fe28f34d4c6bd4a5549.r2.dev';
+        
+        // Get episode from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        let currentEpisode = parseInt(urlParams.get('ep')) || 1;
+        
+        // Clamp episode
+        currentEpisode = Math.max(1, Math.min(TOTAL_EPISODES, currentEpisode));
+
+        const videoPlayer = document.getElementById('videoPlayer');
+        const episodeTitle = document.getElementById('episodeTitle');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const recGrid = document.getElementById('recGrid');
+
+        // Load episode
+        function loadEpisode(ep) {
+            currentEpisode = ep;
+            
+            // Update title
+            episodeTitle.textContent = `Good Boy Hindi Episode ${ep}`;
+            
+            // Set video source
+            videoPlayer.src = `${BASE_URL}/episode-${ep}.mp4`;
+            
+            // Update URL without reload
+            window.history.pushState({}, '', `/player/index.html?ep=${ep}`);
+            
+            // Save to localStorage
+            localStorage.setItem('lastWatchedEpisode', ep);
+            
+            // Update navigation buttons
+            prevBtn.disabled = ep <= 1;
+            nextBtn.disabled = ep >= TOTAL_EPISODES;
+            
+            // Update recommendations
+            loadRecommendations(ep);
+            
+            // Play video
+            videoPlayer.play().catch(e => console.log('Autoplay blocked:', e));
+        }
+
+        // Load recommendations
+        function loadRecommendations(ep) {
+            recGrid.innerHTML = '';
+            
+            // Show next 5 episodes
+            for (let i = ep + 1; i <= Math.min(ep + 5, TOTAL_EPISODES); i++) {
+                const card = document.createElement('div');
+                card.className = 'rec-card';
+                card.onclick = () => loadEpisode(i);
+                
+                card.innerHTML = `
+                    <img class="rec-thumb" src="/thumbnails/episode-${i}.jpg" alt="Episode ${i}" loading="lazy">
+                    <div class="rec-info">
+                        <h3>Good Boy Hindi Episode ${i}</h3>
+                        <p>Click to play</p>
+                    </div>
+                `;
+                
+                recGrid.appendChild(card);
+            }
+            
+            // If no next episodes, show previous ones
+            if (ep === TOTAL_EPISODES) {
+                recGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #888; padding: 20px;">Series Complete! 🎉</div>';
+            }
+        }
+
+        // Navigation functions
+        function nextEpisode() {
+            if (currentEpisode < TOTAL_EPISODES) {
+                loadEpisode(currentEpisode + 1);
+            }
+        }
+
+        function prevEpisode() {
+            if (currentEpisode > 1) {
+                loadEpisode(currentEpisode - 1);
+            }
+        }
+
+        // Fullscreen toggle
+        function toggleFullscreen() {
+            const wrapper = document.querySelector('.video-wrapper');
+            
+            if (!document.fullscreenElement) {
+                wrapper.requestFullscreen().catch(err => {
+                    console.log('Fullscreen error:', err);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // Autoplay next episode
+        videoPlayer.addEventListener('ended', () => {
+            if (currentEpisode < TOTAL_EPISODES) {
+                setTimeout(() => {
+                    loadEpisode(currentEpisode + 1);
+                }, 1000);
+            } else {
+                alert('Series Complete! 🎉');
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.target === videoPlayer) return;
+            
+            switch(e.key) {
+                case 'ArrowRight':
+                    nextEpisode();
+                    break;
+                case 'ArrowLeft':
+                    prevEpisode();
+                    break;
+                case 'f':
+                case 'F':
+                    toggleFullscreen();
+                    break;
+                case ' ':
+                    if (videoPlayer.paused) {
+                        videoPlayer.play();
+                    } else {
+                        videoPlayer.pause();
+                    }
+                    e.preventDefault();
+                    break;
+            }
+        });
+
+        // Handle fullscreen change for styling
+        document.addEventListener('fullscreenchange', () => {
+            if (document.fullscreenElement) {
+                videoPlayer.style.maxHeight = '100vh';
+            } else {
+                videoPlayer.style.maxHeight = '75vh';
+            }
+        });
+
+        // Initial load
+        loadEpisode(currentEpisode);
+    </script>
+</body>
+</html>
