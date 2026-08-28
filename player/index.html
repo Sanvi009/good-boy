@@ -266,6 +266,7 @@
             margin-bottom: 10px;
         }
 
+        /* Smooth progress bar */
         .progress-bar {
             flex: 1;
             height: 4px;
@@ -274,6 +275,7 @@
             cursor: pointer;
             position: relative;
             -webkit-tap-highlight-color: transparent;
+            touch-action: none; /* Important for touch dragging */
         }
 
         .progress-fill {
@@ -282,6 +284,26 @@
             border-radius: 4px;
             width: 0%;
             transition: width 0.1s ease;
+        }
+
+        /* Progress thumb (draggable circle) */
+        .progress-thumb {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background: #ff2e63;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255, 46, 99, 0.5);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+        }
+
+        .progress-bar:hover .progress-thumb,
+        .progress-bar.dragging .progress-thumb {
+            opacity: 1;
         }
 
         .mini-ctrl-btn {
@@ -563,8 +585,9 @@
                         <button class="mini-ctrl-btn" id="pauseMiniBtn" onclick="togglePlayPause()">
                             <span class="material-icons" id="miniPlayIcon">pause</span>
                         </button>
-                        <div class="progress-bar" id="progressBar" onclick="seekVideo(event)">
+                        <div class="progress-bar" id="progressBar">
                             <div class="progress-fill" id="progressFill"></div>
+                            <div class="progress-thumb" id="progressThumb"></div>
                         </div>
                         <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
                         <button class="mini-ctrl-btn" onclick="toggleFullscreen()">
@@ -616,6 +639,7 @@
         const episodeTitle = document.getElementById('episodeTitle');
         const progressBar = document.getElementById('progressBar');
         const progressFill = document.getElementById('progressFill');
+        const progressThumb = document.getElementById('progressThumb');
         const timeDisplay = document.getElementById('timeDisplay');
         const relatedList = document.getElementById('relatedList');
 
@@ -689,6 +713,7 @@
             
             // Reset progress
             progressFill.style.width = '0%';
+            progressThumb.style.left = '0%';
             timeDisplay.textContent = '0:00 / 0:00';
         }
 
@@ -734,11 +759,28 @@
             }
         }
 
-        // Skip forward on double click (silent, like YouTube)
-        function handleDoubleClick() {
-            videoPlayer.currentTime = Math.min(videoPlayer.currentTime + SKIP_SECONDS, videoPlayer.duration);
-            // No visual feedback needed - just skip silently
-        }
+        // Skip forward/backward on double click (left = back, right = forward)
+        videoWrapper.addEventListener('dblclick', (e) => {
+            // Clear single click timeout
+            clearTimeout(clickTimeout);
+            
+            // Don't toggle controls if double clicking
+            videoWrapper.classList.remove('controls-visible');
+            
+            // Get click position relative to video wrapper
+            const rect = videoWrapper.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const wrapperWidth = rect.width;
+            
+            // Check if clicked on left half or right half
+            if (clickX < wrapperWidth / 2) {
+                // Left side - go back 10s
+                videoPlayer.currentTime = Math.max(0, videoPlayer.currentTime - SKIP_SECONDS);
+            } else {
+                // Right side - go forward 10s
+                videoPlayer.currentTime = Math.min(videoPlayer.currentTime + SKIP_SECONDS, videoPlayer.duration);
+            }
+        });
 
         // Touch & hold for 2x speed
         let touchHoldTimeout;
@@ -830,18 +872,6 @@
             }, 250); // Wait 250ms to check if double click
         });
 
-        // Handle double click
-        videoWrapper.addEventListener('dblclick', (e) => {
-            // Clear single click timeout
-            clearTimeout(clickTimeout);
-            
-            // Don't toggle controls if double clicking
-            videoWrapper.classList.remove('controls-visible');
-            
-            // Skip forward 10s silently
-            handleDoubleClick();
-        });
-
         // Prevent controls clicks from toggling wrapper
         document.querySelector('.controls-overlay').addEventListener('click', (e) => {
             e.stopPropagation();
@@ -868,16 +898,69 @@
             if (videoPlayer.duration) {
                 const progress = (videoPlayer.currentTime / videoPlayer.duration) * 100;
                 progressFill.style.width = `${progress}%`;
+                progressThumb.style.left = `${progress}%`;
                 timeDisplay.textContent = `${formatDuration(Math.floor(videoPlayer.currentTime))} / ${formatDuration(Math.floor(videoPlayer.duration))}`;
             }
         });
 
-        // Seek functionality
-        function seekVideo(event) {
+        // Smooth progress bar - drag/touch to seek
+        let isDragging = false;
+
+        function updateProgressFromEvent(e) {
             const rect = progressBar.getBoundingClientRect();
-            const pos = (event.clientX - rect.left) / rect.width;
-            videoPlayer.currentTime = pos * videoPlayer.duration;
+            const pos = (e.clientX - rect.left) / rect.width;
+            const clampedPos = Math.max(0, Math.min(1, pos));
+            
+            progressFill.style.width = `${clampedPos * 100}%`;
+            progressThumb.style.left = `${clampedPos * 100}%`;
+            
+            if (videoPlayer.duration) {
+                videoPlayer.currentTime = clampedPos * videoPlayer.duration;
+            }
         }
+
+        // Mouse events
+        progressBar.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            progressBar.classList.add('dragging');
+            updateProgressFromEvent(e);
+            e.preventDefault();
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                updateProgressFromEvent(e);
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isDragging) {
+                isDragging = false;
+                progressBar.classList.remove('dragging');
+            }
+        });
+
+        // Touch events
+        progressBar.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            progressBar.classList.add('dragging');
+            updateProgressFromEvent(e.touches[0]);
+            e.preventDefault();
+        });
+
+        progressBar.addEventListener('touchmove', (e) => {
+            if (isDragging) {
+                updateProgressFromEvent(e.touches[0]);
+                e.preventDefault();
+            }
+        });
+
+        progressBar.addEventListener('touchend', () => {
+            if (isDragging) {
+                isDragging = false;
+                progressBar.classList.remove('dragging');
+            }
+        });
 
         // Autoplay next episode
         videoPlayer.addEventListener('ended', () => {
