@@ -6,8 +6,11 @@
     <base href="/good-boy/">
     <title>Player</title>
     
-    <!-- Google Font -->
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     
     <style>
         * {
@@ -135,6 +138,7 @@
             transition: opacity 0.3s ease;
             z-index: 10;
             pointer-events: none;
+            background: rgba(0, 0, 0, 0.3);
         }
 
         .video-wrapper.controls-visible .controls-overlay {
@@ -182,14 +186,14 @@
             gap: 20px;
         }
 
-        .nav-arrow {
-            background: rgba(0, 0, 0, 0.5);
+        /* Material Icon Buttons */
+        .ctrl-btn {
+            background: rgba(0, 0, 0, 0.7);
             border: none;
             color: #fff;
-            width: 50px;
-            height: 50px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
-            font-size: 1.5rem;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
@@ -197,31 +201,36 @@
             justify-content: center;
         }
 
-        .nav-arrow:hover {
+        .ctrl-btn:hover {
             background: #ff2e63;
             transform: scale(1.1);
         }
 
-        .nav-arrow:disabled {
+        .ctrl-btn:disabled {
             background: rgba(0, 0, 0, 0.3);
             cursor: not-allowed;
             transform: none;
             opacity: 0.5;
         }
 
+        .ctrl-btn .material-icons {
+            font-size: 24px;
+        }
+
+        /* Main play button - bigger */
         .play-pause-btn {
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.8);
             border: 2px solid #fff;
             color: #fff;
             width: 70px;
             height: 70px;
             border-radius: 50%;
-            font-size: 1.8rem;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
         }
 
         .play-pause-btn:hover {
@@ -230,10 +239,38 @@
             transform: scale(1.1);
         }
 
+        .play-pause-btn .material-icons {
+            font-size: 36px;
+        }
+
+        /* Skip buttons */
+        .skip-btn {
+            background: rgba(0, 0, 0, 0.5);
+            border: none;
+            color: #fff;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .skip-btn:hover {
+            background: #ff2e63;
+            transform: scale(1.1);
+        }
+
+        .skip-btn .material-icons {
+            font-size: 28px;
+        }
+
         /* Bottom controls */
         .controls-bottom {
             padding: 15px 20px;
-            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
         }
 
         .progress-container {
@@ -260,17 +297,25 @@
             transition: width 0.1s ease;
         }
 
-        .pause-mini-btn {
+        .mini-ctrl-btn {
             background: none;
             border: none;
             color: #fff;
-            font-size: 1rem;
             cursor: pointer;
-            width: 30px;
-            height: 30px;
+            width: 35px;
+            height: 35px;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: color 0.3s ease;
+        }
+
+        .mini-ctrl-btn:hover {
+            color: #ff2e63;
+        }
+
+        .mini-ctrl-btn .material-icons {
+            font-size: 20px;
         }
 
         .time-display {
@@ -278,24 +323,6 @@
             font-size: 0.8rem;
             font-weight: 500;
             white-space: nowrap;
-        }
-
-        /* Fullscreen button */
-        .fullscreen-btn {
-            background: none;
-            border: none;
-            color: #fff;
-            font-size: 1.2rem;
-            cursor: pointer;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .fullscreen-btn:hover {
-            color: #ff2e63;
         }
 
         /* Loading indicator */
@@ -450,16 +477,23 @@
                 max-height: 60vh;
             }
 
-            .nav-arrow {
+            .ctrl-btn {
                 width: 40px;
                 height: 40px;
-                font-size: 1.2rem;
             }
 
             .play-pause-btn {
                 width: 55px;
                 height: 55px;
-                font-size: 1.4rem;
+            }
+
+            .play-pause-btn .material-icons {
+                font-size: 28px;
+            }
+
+            .skip-btn {
+                width: 38px;
+                height: 38px;
             }
 
             .video-thumb {
@@ -488,16 +522,19 @@
                 font-size: 0.75rem;
             }
 
-            .nav-arrow {
+            .ctrl-btn {
                 width: 35px;
                 height: 35px;
-                font-size: 1rem;
             }
 
             .play-pause-btn {
                 width: 45px;
                 height: 45px;
-                font-size: 1.2rem;
+            }
+
+            .skip-btn {
+                width: 32px;
+                height: 32px;
             }
         }
     </style>
@@ -522,29 +559,44 @@
             <div class="controls-overlay" id="controlsOverlay">
                 <!-- Top Controls -->
                 <div class="controls-top">
-                    <a href="../index.html" class="back-btn">← Back</a>
+                    <a href="../index.html" class="back-btn">
+                        <span class="material-icons" style="font-size: 16px;">arrow_back</span>
+                        Back
+                    </a>
                 </div>
                 
                 <!-- Center Controls -->
                 <div class="controls-center">
-                    <button class="nav-arrow" id="prevBtn" onclick="prevEpisode()">←</button>
-                    <button class="play-pause-btn" id="playPauseBtn" onclick="togglePlayPause()">
-                        <span id="playIcon">▶</span>
+                    <button class="ctrl-btn" id="prevBtn" onclick="prevEpisode()" title="Previous">
+                        <span class="material-icons">skip_previous</span>
                     </button>
-                    <button class="nav-arrow" id="nextBtn" onclick="nextEpisode()">→</button>
+                    <button class="skip-btn" onclick="skipBackward()" title="Back 10s">
+                        <span class="material-icons">replay_10</span>
+                    </button>
+                    <button class="play-pause-btn" id="playPauseBtn" onclick="togglePlayPause()">
+                        <span class="material-icons" id="playIcon">play_arrow</span>
+                    </button>
+                    <button class="skip-btn" onclick="skipForward()" title="Forward 10s">
+                        <span class="material-icons">forward_10</span>
+                    </button>
+                    <button class="ctrl-btn" id="nextBtn" onclick="nextEpisode()" title="Next">
+                        <span class="material-icons">skip_next</span>
+                    </button>
                 </div>
                 
                 <!-- Bottom Controls -->
                 <div class="controls-bottom">
                     <div class="progress-container">
-                        <button class="pause-mini-btn" id="pauseMiniBtn" onclick="togglePlayPause()">
-                            <span id="miniPlayIcon">▶</span>
+                        <button class="mini-ctrl-btn" id="pauseMiniBtn" onclick="togglePlayPause()">
+                            <span class="material-icons" id="miniPlayIcon">pause</span>
                         </button>
                         <div class="progress-bar" id="progressBar" onclick="seekVideo(event)">
                             <div class="progress-fill" id="progressFill"></div>
                         </div>
                         <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
-                        <button class="fullscreen-btn" onclick="toggleFullscreen()">⛶</button>
+                        <button class="mini-ctrl-btn" onclick="toggleFullscreen()">
+                            <span class="material-icons">fullscreen</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -565,6 +617,7 @@
     <script>
         const TOTAL_EPISODES = 32;
         const BASE_URL = 'https://pub-07d8d60145fc4fe28f34d4c6bd4a5549.r2.dev';
+        const SKIP_SECONDS = 10;
         
         // Video durations (in seconds)
         const durations = {};
@@ -705,51 +758,65 @@
             }
         }
 
+        // Skip forward/backward
+        function skipForward() {
+            if (videoPlayer.duration) {
+                videoPlayer.currentTime = Math.min(videoPlayer.currentTime + SKIP_SECONDS, videoPlayer.duration);
+            }
+        }
+
+        function skipBackward() {
+            videoPlayer.currentTime = Math.max(0, videoPlayer.currentTime - SKIP_SECONDS);
+        }
+
         // Play/Pause toggle
         function togglePlayPause() {
             if (videoPlayer.paused) {
                 videoPlayer.play();
-                playIcon.textContent = '⏸';
-                miniPlayIcon.textContent = '⏸';
+                playIcon.textContent = 'pause';
+                miniPlayIcon.textContent = 'pause';
             } else {
                 videoPlayer.pause();
-                playIcon.textContent = '▶';
-                miniPlayIcon.textContent = '▶';
+                playIcon.textContent = 'play_arrow';
+                miniPlayIcon.textContent = 'play_arrow';
             }
         }
 
         // Update play/pause icon on play/pause events
         videoPlayer.addEventListener('play', () => {
-            playIcon.textContent = '⏸';
-            miniPlayIcon.textContent = '⏸';
+            playIcon.textContent = 'pause';
+            miniPlayIcon.textContent = 'pause';
         });
 
         videoPlayer.addEventListener('pause', () => {
-            playIcon.textContent = '▶';
-            miniPlayIcon.textContent = '▶';
+            playIcon.textContent = 'play_arrow';
+            miniPlayIcon.textContent = 'play_arrow';
         });
 
-        // Show controls on click
+        // Toggle controls on click
         videoWrapper.addEventListener('click', (e) => {
-            if (e.target === videoPlayer || e.target === videoWrapper) {
-                videoWrapper.classList.toggle('controls-visible');
-                // Auto-hide after 3 seconds
+            // Don't toggle if clicking on controls
+            if (e.target.closest('.controls-overlay') && e.target !== videoWrapper) {
+                return;
+            }
+            
+            videoWrapper.classList.toggle('controls-visible');
+            
+            // Auto-hide after 4 seconds if visible
+            if (videoWrapper.classList.contains('controls-visible')) {
                 clearTimeout(controlsTimeout);
                 controlsTimeout = setTimeout(() => {
                     videoWrapper.classList.remove('controls-visible');
-                }, 3000);
+                }, 4000);
             }
         });
 
-        // Auto-hide controls
-        let controlsTimeout;
-        videoWrapper.addEventListener('mousemove', () => {
-            videoWrapper.classList.add('controls-visible');
-            clearTimeout(controlsTimeout);
-            controlsTimeout = setTimeout(() => {
-                videoWrapper.classList.remove('controls-visible');
-            }, 3000);
+        // Prevent controls clicks from toggling wrapper
+        document.querySelector('.controls-overlay').addEventListener('click', (e) => {
+            e.stopPropagation();
         });
+
+        let controlsTimeout;
 
         // Fullscreen toggle
         function toggleFullscreen() {
@@ -822,9 +889,11 @@
             if (document.fullscreenElement) {
                 videoWrapper.style.aspectRatio = 'auto';
                 videoWrapper.style.maxHeight = '100vh';
+                videoWrapper.style.width = '100vw';
             } else {
                 videoWrapper.style.aspectRatio = '16/9';
                 videoWrapper.style.maxHeight = '75vh';
+                videoWrapper.style.width = '100%';
             }
         });
 
