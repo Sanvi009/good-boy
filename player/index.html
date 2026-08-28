@@ -335,61 +335,6 @@
             100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
 
-        /* Skip Feedback Animation */
-        .skip-feedback {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            padding: 12px 20px;
-            border-radius: 12px;
-            font-size: 1.5rem;
-            font-weight: 700;
-            z-index: 20;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s ease, transform 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .skip-feedback.show {
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(1.1);
-        }
-
-        .skip-feedback .material-icons {
-            font-size: 24px;
-            color: #ff2e63;
-        }
-
-        /* Speed Indicator */
-        .speed-indicator {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            z-index: 20;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .speed-indicator.show {
-            opacity: 1;
-        }
-
         /* Title Section */
         .title-section {
             padding: 20px 20px;
@@ -589,18 +534,6 @@
             <!-- Loading Indicator -->
             <div class="loading-indicator" id="loadingIndicator"></div>
             
-            <!-- Skip Feedback -->
-            <div class="skip-feedback" id="skipFeedback">
-                <span class="material-icons">forward_10</span>
-                <span>10s</span>
-            </div>
-            
-            <!-- Speed Indicator -->
-            <div class="speed-indicator" id="speedIndicator">
-                <span class="material-icons">speed</span>
-                <span>2x</span>
-            </div>
-            
             <!-- Controls Overlay -->
             <div class="controls-overlay" id="controlsOverlay">
                 <!-- Top Controls -->
@@ -685,8 +618,6 @@
         const progressFill = document.getElementById('progressFill');
         const timeDisplay = document.getElementById('timeDisplay');
         const relatedList = document.getElementById('relatedList');
-        const skipFeedback = document.getElementById('skipFeedback');
-        const speedIndicator = document.getElementById('speedIndicator');
 
         // Format duration
         function formatDuration(seconds) {
@@ -747,7 +678,6 @@
             
             // Reset playback speed
             videoPlayer.playbackRate = 1;
-            speedIndicator.classList.remove('show');
             
             // Play video
             videoPlayer.play().catch(e => console.log('Autoplay blocked:', e));
@@ -804,18 +734,10 @@
             }
         }
 
-        // Show skip feedback
-        function showSkipFeedback() {
-            skipFeedback.classList.add('show');
-            setTimeout(() => {
-                skipFeedback.classList.remove('show');
-            }, 800);
-        }
-
-        // Skip forward on double click
+        // Skip forward on double click (silent, like YouTube)
         function handleDoubleClick() {
             videoPlayer.currentTime = Math.min(videoPlayer.currentTime + SKIP_SECONDS, videoPlayer.duration);
-            showSkipFeedback();
+            // No visual feedback needed - just skip silently
         }
 
         // Touch & hold for 2x speed
@@ -830,7 +752,6 @@
             touchHoldTimeout = setTimeout(() => {
                 isTouchHold = true;
                 videoPlayer.playbackRate = 2;
-                speedIndicator.classList.add('show');
                 
                 // Clear controls
                 clearTimeout(controlsTimeout);
@@ -844,7 +765,6 @@
             if (isTouchHold) {
                 // Reset speed
                 videoPlayer.playbackRate = 1;
-                speedIndicator.classList.remove('show');
                 isTouchHold = false;
             }
         });
@@ -854,7 +774,6 @@
             
             if (isTouchHold) {
                 videoPlayer.playbackRate = 1;
-                speedIndicator.classList.remove('show');
                 isTouchHold = false;
             }
         });
@@ -919,7 +838,7 @@
             // Don't toggle controls if double clicking
             videoWrapper.classList.remove('controls-visible');
             
-            // Skip forward 10s
+            // Skip forward 10s silently
             handleDoubleClick();
         });
 
