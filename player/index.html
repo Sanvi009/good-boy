@@ -543,7 +543,7 @@
 <body>
     <!-- Fixed Navbar -->
     <nav class="navbar">
-        <div class="heart-icon" onclick="window.location.href='../index.html'"></div>
+        <div class="heart-icon" onclick="window.location.href='index.html'"></div>
         <span class="brand">just for minsuuu</span>
     </nav>
 
@@ -560,7 +560,7 @@
             <div class="controls-overlay" id="controlsOverlay">
                 <!-- Top Controls -->
                 <div class="controls-top">
-                    <a href="../index.html" class="back-btn">
+                    <a href="index.html" class="back-btn">
                         <span class="material-icons" style="font-size: 16px;">arrow_back</span>
                         Back
                     </a>
@@ -1003,27 +1003,25 @@
         document.addEventListener('fullscreenchange', () => {
             if (document.fullscreenElement) {
                 // Force 16:9 aspect ratio in fullscreen
-                videoWrapper.style.aspectRatio = '16/9';
+                videoWrapper.style.aspectRatio = 'auto';
                 videoWrapper.style.maxHeight = '100vh';
                 videoWrapper.style.width = '100vw';
                 videoWrapper.style.height = '100vh';
-                videoWrapper.style.display = 'flex';
-                videoWrapper.style.alignItems = 'center';
-                videoWrapper.style.justifyContent = 'center';
                 
                 video.style.width = '100%';
                 video.style.height = '100%';
                 video.style.objectFit = 'contain';
+                video.style.maxHeight = '100vh';
             } else {
                 videoWrapper.style.aspectRatio = '16/9';
                 videoWrapper.style.maxHeight = '75vh';
                 videoWrapper.style.width = '100%';
                 videoWrapper.style.height = 'auto';
-                videoWrapper.style.display = 'block';
                 
                 video.style.width = '100%';
                 video.style.height = 'auto';
                 video.style.objectFit = 'contain';
+                video.style.maxHeight = '75vh';
             }
         });
 
