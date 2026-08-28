@@ -7,7 +7,7 @@
     <title>Player</title>
     
     <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     
     <style>
         * {
@@ -20,24 +20,97 @@
         body {
             background: #0a0a0a;
             color: #fff;
+            padding-top: 60px;
         }
 
-        /* Player Container */
-        .player-container {
-            max-width: 100%;
-            min-height: 100vh;
+        /* Navbar - Fixed */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 20px;
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            gap: 15px;
         }
 
-        /* Video Wrapper - takes most of screen */
+        /* CSS Heart Icon */
+        .heart-icon {
+            width: 32px;
+            height: 32px;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .heart-icon:hover {
+            transform: scale(1.1);
+        }
+
+        .heart-icon::before,
+        .heart-icon::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            width: 16px;
+            height: 26px;
+            border-radius: 16px 16px 0 0;
+            background: linear-gradient(135deg, #ff6b6b, #ff2e63);
+            transform: rotate(-45deg);
+            transform-origin: 0 100%;
+        }
+
+        .heart-icon::before {
+            left: 16px;
+        }
+
+        .heart-icon::after {
+            left: 0;
+            transform: rotate(45deg);
+            transform-origin: 100% 100%;
+        }
+
+        /* Brand Text */
+        .brand {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ff6b6b, #ff2e63, #ff6b6b);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient 3s ease infinite;
+            letter-spacing: 1px;
+        }
+
+        @keyframes gradient {
+            0%, 100% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Video Wrapper */
         .video-wrapper {
             position: relative;
             width: 100%;
             background: #000;
-            flex: 1;
-            min-height: 70vh;
-            max-height: 85vh;
+            aspect-ratio: 16/9;
+            max-height: 75vh;
+            cursor: pointer;
         }
 
         video {
@@ -48,43 +121,75 @@
             display: block;
         }
 
-        /* Custom Controls Overlay */
+        /* Overlay Controls */
         .controls-overlay {
             position: absolute;
-            bottom: 0;
+            top: 0;
             left: 0;
             right: 0;
-            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
-            padding: 40px 20px 15px;
+            bottom: 0;
             display: flex;
-            align-items: center;
+            flex-direction: column;
             justify-content: space-between;
             opacity: 0;
             transition: opacity 0.3s ease;
             z-index: 10;
+            pointer-events: none;
         }
 
-        .video-wrapper:hover .controls-overlay,
-        .video-wrapper:focus-within .controls-overlay,
         .video-wrapper.controls-visible .controls-overlay {
             opacity: 1;
+            pointer-events: all;
         }
 
-        .controls-group {
+        /* Top controls area */
+        .controls-top {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        /* Back button */
+        .back-btn {
+            background: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
-        /* Control Buttons */
-        .ctrl-btn {
-            background: rgba(255, 255, 255, 0.2);
+        .back-btn:hover {
+            background: #ff2e63;
+        }
+
+        /* Center controls */
+        .controls-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .nav-arrow {
+            background: rgba(0, 0, 0, 0.5);
             border: none;
             color: #fff;
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
-            font-size: 1.2rem;
+            font-size: 1.5rem;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
@@ -92,52 +197,105 @@
             justify-content: center;
         }
 
-        .ctrl-btn:hover {
+        .nav-arrow:hover {
             background: #ff2e63;
             transform: scale(1.1);
         }
 
-        .ctrl-btn:disabled {
-            background: rgba(255, 255, 255, 0.1);
+        .nav-arrow:disabled {
+            background: rgba(0, 0, 0, 0.3);
             cursor: not-allowed;
             transform: none;
             opacity: 0.5;
         }
 
-        .ctrl-btn svg {
-            width: 20px;
-            height: 20px;
-            fill: currentColor;
-        }
-
-        /* Back Button */
-        .back-btn {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.6);
+        .play-pause-btn {
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #fff;
             color: #fff;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            font-size: 1.8rem;
             cursor: pointer;
             transition: all 0.3s ease;
-            z-index: 10;
-            text-decoration: none;
             display: flex;
             align-items: center;
-            gap: 8px;
-            opacity: 0;
+            justify-content: center;
         }
 
-        .video-wrapper:hover .back-btn,
-        .video-wrapper.controls-visible .back-btn {
-            opacity: 1;
-        }
-
-        .back-btn:hover {
+        .play-pause-btn:hover {
             background: #ff2e63;
+            border-color: #ff2e63;
+            transform: scale(1.1);
+        }
+
+        /* Bottom controls */
+        .controls-bottom {
+            padding: 15px 20px;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+        }
+
+        .progress-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #ff2e63;
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+
+        .pause-mini-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .time-display {
+            color: #fff;
+            font-size: 0.8rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        /* Fullscreen button */
+        .fullscreen-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fullscreen-btn:hover {
+            color: #ff2e63;
         }
 
         /* Loading indicator */
@@ -161,16 +319,26 @@
             100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
 
-        /* Related Episodes Below */
+        /* Title Section */
+        .title-section {
+            padding: 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .title-section h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #fff;
+            line-height: 1.4;
+        }
+
+        /* Related Episodes Section */
         .related-section {
-            max-width: 900px;
-            margin: 0 auto;
             padding: 20px;
-            width: 100%;
         }
 
         .section-title {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
             color: #fff;
             margin-bottom: 20px;
@@ -182,12 +350,12 @@
         .section-title::before {
             content: '';
             width: 4px;
-            height: 20px;
+            height: 18px;
             background: #ff2e63;
             border-radius: 4px;
         }
 
-        /* Video List (1 column - same as home) */
+        /* Video List (1 column) */
         .video-list {
             display: flex;
             flex-direction: column;
@@ -269,13 +437,29 @@
 
         /* Responsive */
         @media (max-width: 768px) {
-            .video-wrapper {
-                min-height: 60vh;
-                max-height: 70vh;
+            .navbar {
+                padding: 10px 15px;
             }
 
-            .related-section {
-                padding: 15px;
+            .brand {
+                font-size: 1.2rem;
+            }
+
+            .video-wrapper {
+                aspect-ratio: 16/9;
+                max-height: 60vh;
+            }
+
+            .nav-arrow {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+
+            .play-pause-btn {
+                width: 55px;
+                height: 55px;
+                font-size: 1.4rem;
             }
 
             .video-thumb {
@@ -285,12 +469,6 @@
 
             .video-title {
                 font-size: 0.85rem;
-            }
-
-            .ctrl-btn {
-                width: 35px;
-                height: 35px;
-                font-size: 1rem;
             }
         }
 
@@ -306,45 +484,75 @@
             }
 
             .back-btn {
-                padding: 8px 12px;
-                font-size: 0.8rem;
+                padding: 6px 10px;
+                font-size: 0.75rem;
+            }
+
+            .nav-arrow {
+                width: 35px;
+                height: 35px;
+                font-size: 1rem;
+            }
+
+            .play-pause-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 1.2rem;
             }
         }
     </style>
 </head>
 <body>
-    <div class="player-container">
-        <!-- Video Wrapper -->
+    <!-- Fixed Navbar -->
+    <nav class="navbar">
+        <div class="heart-icon" onclick="window.location.href='../index.html'"></div>
+        <span class="brand">just for minsuuu</span>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Video Player -->
         <div class="video-wrapper" id="videoWrapper">
             <video id="videoPlayer" autoplay playsinline></video>
             
             <!-- Loading Indicator -->
             <div class="loading-indicator" id="loadingIndicator"></div>
             
-            <!-- Back Button -->
-            <a href="../index.html" class="back-btn">← Back</a>
-            
-            <!-- Custom Controls Overlay -->
+            <!-- Controls Overlay -->
             <div class="controls-overlay" id="controlsOverlay">
-                <div class="controls-group">
-                    <button class="ctrl-btn" id="prevBtn" onclick="prevEpisode()" title="Previous">
-                        <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
-                    </button>
-                    <button class="ctrl-btn" id="playPauseBtn" onclick="togglePlayPause()" title="Play/Pause">
-                        <svg viewBox="0 0 24 24" id="playIcon"><path d="M8 5v14l11-7z"/></svg>
-                        <svg viewBox="0 0 24 24" id="pauseIcon" style="display: none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-                    </button>
-                    <button class="ctrl-btn" id="nextBtn" onclick="nextEpisode()" title="Next">
-                        <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
-                    </button>
+                <!-- Top Controls -->
+                <div class="controls-top">
+                    <a href="../index.html" class="back-btn">← Back</a>
                 </div>
                 
-                <div class="controls-group">
-                    <button class="ctrl-btn" onclick="toggleFullscreen()" title="Fullscreen">
-                        <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+                <!-- Center Controls -->
+                <div class="controls-center">
+                    <button class="nav-arrow" id="prevBtn" onclick="prevEpisode()">←</button>
+                    <button class="play-pause-btn" id="playPauseBtn" onclick="togglePlayPause()">
+                        <span id="playIcon">▶</span>
                     </button>
+                    <button class="nav-arrow" id="nextBtn" onclick="nextEpisode()">→</button>
+                </div>
+                
+                <!-- Bottom Controls -->
+                <div class="controls-bottom">
+                    <div class="progress-container">
+                        <button class="pause-mini-btn" id="pauseMiniBtn" onclick="togglePlayPause()">
+                            <span id="miniPlayIcon">▶</span>
+                        </button>
+                        <div class="progress-bar" id="progressBar" onclick="seekVideo(event)">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
+                        <button class="fullscreen-btn" onclick="toggleFullscreen()">⛶</button>
+                    </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Title of current playing video -->
+        <div class="title-section">
+            <h2 id="episodeTitle">Loading...</h2>
         </div>
 
         <!-- Related Episodes -->
@@ -377,8 +585,12 @@
         const nextBtn = document.getElementById('nextBtn');
         const playPauseBtn = document.getElementById('playPauseBtn');
         const playIcon = document.getElementById('playIcon');
-        const pauseIcon = document.getElementById('pauseIcon');
+        const miniPlayIcon = document.getElementById('miniPlayIcon');
         const loadingIndicator = document.getElementById('loadingIndicator');
+        const episodeTitle = document.getElementById('episodeTitle');
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+        const timeDisplay = document.getElementById('timeDisplay');
         const relatedList = document.getElementById('relatedList');
 
         // Format duration
@@ -428,6 +640,9 @@
             // Save to localStorage
             localStorage.setItem('lastWatchedEpisode', ep);
             
+            // Update title
+            episodeTitle.textContent = `Good Boy Hindi Episode ${ep}`;
+            
             // Update navigation buttons
             prevBtn.disabled = ep <= 1;
             nextBtn.disabled = ep >= TOTAL_EPISODES;
@@ -442,28 +657,31 @@
             videoPlayer.onloadeddata = () => {
                 loadingIndicator.style.display = 'none';
             };
+            
+            // Reset progress
+            progressFill.style.width = '0%';
+            timeDisplay.textContent = '0:00 / 0:00';
         }
 
-        // Load related episodes (next 5 + previous 3)
+        // Load related episodes (next 5 + previous if needed)
         function loadRelatedEpisodes(ep) {
             relatedList.innerHTML = '';
             
             // Show next 5 episodes first
-            const nextEpisodes = [];
+            const episodesToShow = [];
             for (let i = ep + 1; i <= Math.min(ep + 5, TOTAL_EPISODES); i++) {
-                nextEpisodes.push(i);
+                episodesToShow.push(i);
             }
             
             // If we have less than 5 next, fill with previous
-            const previousEpisodes = [];
-            if (nextEpisodes.length < 5) {
-                for (let i = ep - 1; i >= Math.max(1, ep - (5 - nextEpisodes.length)); i--) {
-                    previousEpisodes.push(i);
+            if (episodesToShow.length < 5) {
+                for (let i = ep - 1; i >= Math.max(1, ep - (5 - episodesToShow.length)); i--) {
+                    episodesToShow.unshift(i);
                 }
             }
             
-            // Add previous episodes before next (if showing all)
-            [...previousEpisodes.reverse(), ...nextEpisodes].forEach(epi => {
+            // Add cards
+            episodesToShow.forEach(epi => {
                 const card = createVideoCard(epi);
                 relatedList.appendChild(card);
             });
@@ -491,24 +709,46 @@
         function togglePlayPause() {
             if (videoPlayer.paused) {
                 videoPlayer.play();
-                playIcon.style.display = 'none';
-                pauseIcon.style.display = 'block';
+                playIcon.textContent = '⏸';
+                miniPlayIcon.textContent = '⏸';
             } else {
                 videoPlayer.pause();
-                playIcon.style.display = 'block';
-                pauseIcon.style.display = 'none';
+                playIcon.textContent = '▶';
+                miniPlayIcon.textContent = '▶';
             }
         }
 
         // Update play/pause icon on play/pause events
         videoPlayer.addEventListener('play', () => {
-            playIcon.style.display = 'none';
-            pauseIcon.style.display = 'block';
+            playIcon.textContent = '⏸';
+            miniPlayIcon.textContent = '⏸';
         });
 
         videoPlayer.addEventListener('pause', () => {
-            playIcon.style.display = 'block';
-            pauseIcon.style.display = 'none';
+            playIcon.textContent = '▶';
+            miniPlayIcon.textContent = '▶';
+        });
+
+        // Show controls on click
+        videoWrapper.addEventListener('click', (e) => {
+            if (e.target === videoPlayer || e.target === videoWrapper) {
+                videoWrapper.classList.toggle('controls-visible');
+                // Auto-hide after 3 seconds
+                clearTimeout(controlsTimeout);
+                controlsTimeout = setTimeout(() => {
+                    videoWrapper.classList.remove('controls-visible');
+                }, 3000);
+            }
+        });
+
+        // Auto-hide controls
+        let controlsTimeout;
+        videoWrapper.addEventListener('mousemove', () => {
+            videoWrapper.classList.add('controls-visible');
+            clearTimeout(controlsTimeout);
+            controlsTimeout = setTimeout(() => {
+                videoWrapper.classList.remove('controls-visible');
+            }, 3000);
         });
 
         // Fullscreen toggle
@@ -524,25 +764,21 @@
             }
         }
 
-        // Show controls on click
-        videoWrapper.addEventListener('click', (e) => {
-            if (e.target === videoPlayer || e.target === videoWrapper) {
-                videoWrapper.classList.toggle('controls-visible');
-                setTimeout(() => {
-                    videoWrapper.classList.remove('controls-visible');
-                }, 3000);
+        // Progress bar updates
+        videoPlayer.addEventListener('timeupdate', () => {
+            if (videoPlayer.duration) {
+                const progress = (videoPlayer.currentTime / videoPlayer.duration) * 100;
+                progressFill.style.width = `${progress}%`;
+                timeDisplay.textContent = `${formatDuration(Math.floor(videoPlayer.currentTime))} / ${formatDuration(Math.floor(videoPlayer.duration))}`;
             }
         });
 
-        // Hide controls after 3 seconds of no interaction
-        let controlsTimeout;
-        videoWrapper.addEventListener('mousemove', () => {
-            videoWrapper.classList.add('controls-visible');
-            clearTimeout(controlsTimeout);
-            controlsTimeout = setTimeout(() => {
-                videoWrapper.classList.remove('controls-visible');
-            }, 3000);
-        });
+        // Seek functionality
+        function seekVideo(event) {
+            const rect = progressBar.getBoundingClientRect();
+            const pos = (event.clientX - rect.left) / rect.width;
+            videoPlayer.currentTime = pos * videoPlayer.duration;
+        }
 
         // Autoplay next episode
         videoPlayer.addEventListener('ended', () => {
@@ -584,11 +820,11 @@
         // Handle fullscreen change for styling
         document.addEventListener('fullscreenchange', () => {
             if (document.fullscreenElement) {
+                videoWrapper.style.aspectRatio = 'auto';
                 videoWrapper.style.maxHeight = '100vh';
-                videoWrapper.style.minHeight = '100vh';
             } else {
-                videoWrapper.style.maxHeight = '85vh';
-                videoWrapper.style.minHeight = '70vh';
+                videoWrapper.style.aspectRatio = '16/9';
+                videoWrapper.style.maxHeight = '75vh';
             }
         });
 
