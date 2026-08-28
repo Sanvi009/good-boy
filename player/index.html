@@ -18,6 +18,9 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            user-select: none;
         }
 
         body {
@@ -114,6 +117,7 @@
             aspect-ratio: 16/9;
             max-height: 75vh;
             cursor: pointer;
+            outline: none;
         }
 
         video {
@@ -122,6 +126,7 @@
             object-fit: contain;
             background: #000;
             display: block;
+            outline: none;
         }
 
         /* Overlay Controls */
@@ -168,6 +173,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .back-btn:hover {
@@ -199,6 +205,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
         }
 
         .ctrl-btn:hover {
@@ -231,6 +239,8 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
         }
 
         .play-pause-btn:hover {
@@ -241,30 +251,6 @@
 
         .play-pause-btn .material-icons {
             font-size: 36px;
-        }
-
-        /* Skip buttons */
-        .skip-btn {
-            background: rgba(0, 0, 0, 0.5);
-            border: none;
-            color: #fff;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .skip-btn:hover {
-            background: #ff2e63;
-            transform: scale(1.1);
-        }
-
-        .skip-btn .material-icons {
-            font-size: 28px;
         }
 
         /* Bottom controls */
@@ -287,6 +273,7 @@
             border-radius: 4px;
             cursor: pointer;
             position: relative;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .progress-fill {
@@ -308,6 +295,8 @@
             align-items: center;
             justify-content: center;
             transition: color 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
         }
 
         .mini-ctrl-btn:hover {
@@ -491,11 +480,6 @@
                 font-size: 28px;
             }
 
-            .skip-btn {
-                width: 38px;
-                height: 38px;
-            }
-
             .video-thumb {
                 width: 140px;
                 margin: 8px;
@@ -531,11 +515,6 @@
                 width: 45px;
                 height: 45px;
             }
-
-            .skip-btn {
-                width: 32px;
-                height: 32px;
-            }
         }
     </style>
 </head>
@@ -570,14 +549,8 @@
                     <button class="ctrl-btn" id="prevBtn" onclick="prevEpisode()" title="Previous">
                         <span class="material-icons">skip_previous</span>
                     </button>
-                    <button class="skip-btn" onclick="skipBackward()" title="Back 10s">
-                        <span class="material-icons">replay_10</span>
-                    </button>
                     <button class="play-pause-btn" id="playPauseBtn" onclick="togglePlayPause()">
                         <span class="material-icons" id="playIcon">play_arrow</span>
-                    </button>
-                    <button class="skip-btn" onclick="skipForward()" title="Forward 10s">
-                        <span class="material-icons">forward_10</span>
                     </button>
                     <button class="ctrl-btn" id="nextBtn" onclick="nextEpisode()" title="Next">
                         <span class="material-icons">skip_next</span>
@@ -758,15 +731,15 @@
             }
         }
 
-        // Skip forward/backward
-        function skipForward() {
-            if (videoPlayer.duration) {
-                videoPlayer.currentTime = Math.min(videoPlayer.currentTime + SKIP_SECONDS, videoPlayer.duration);
-            }
-        }
-
-        function skipBackward() {
-            videoPlayer.currentTime = Math.max(0, videoPlayer.currentTime - SKIP_SECONDS);
+        // Skip forward on double click
+        function handleDoubleClick() {
+            videoPlayer.currentTime = Math.min(videoPlayer.currentTime + SKIP_SECONDS, videoPlayer.duration);
+            // Show a brief visual feedback
+            videoWrapper.style.transition = 'all 0.2s ease';
+            videoWrapper.style.filter = 'brightness(1.2)';
+            setTimeout(() => {
+                videoWrapper.style.filter = 'brightness(1)';
+            }, 200);
         }
 
         // Play/Pause toggle
@@ -793,22 +766,41 @@
             miniPlayIcon.textContent = 'play_arrow';
         });
 
-        // Toggle controls on click
+        // Toggle controls on single click
+        let clickTimeout = null;
         videoWrapper.addEventListener('click', (e) => {
             // Don't toggle if clicking on controls
             if (e.target.closest('.controls-overlay') && e.target !== videoWrapper) {
                 return;
             }
             
-            videoWrapper.classList.toggle('controls-visible');
+            // Clear single click timeout
+            clearTimeout(clickTimeout);
             
-            // Auto-hide after 4 seconds if visible
-            if (videoWrapper.classList.contains('controls-visible')) {
-                clearTimeout(controlsTimeout);
-                controlsTimeout = setTimeout(() => {
-                    videoWrapper.classList.remove('controls-visible');
-                }, 4000);
-            }
+            // Set new timeout for single click
+            clickTimeout = setTimeout(() => {
+                videoWrapper.classList.toggle('controls-visible');
+                
+                // Auto-hide after 4 seconds if visible
+                if (videoWrapper.classList.contains('controls-visible')) {
+                    clearTimeout(controlsTimeout);
+                    controlsTimeout = setTimeout(() => {
+                        videoWrapper.classList.remove('controls-visible');
+                    }, 4000);
+                }
+            }, 250); // Wait 250ms to check if double click
+        });
+
+        // Handle double click
+        videoWrapper.addEventListener('dblclick', (e) => {
+            // Clear single click timeout
+            clearTimeout(clickTimeout);
+            
+            // Don't toggle controls if double clicking
+            videoWrapper.classList.remove('controls-visible');
+            
+            // Skip forward 10s
+            handleDoubleClick();
         });
 
         // Prevent controls clicks from toggling wrapper
@@ -887,13 +879,15 @@
         // Handle fullscreen change for styling
         document.addEventListener('fullscreenchange', () => {
             if (document.fullscreenElement) {
-                videoWrapper.style.aspectRatio = 'auto';
+                videoWrapper.style.aspectRatio = '16/9';
                 videoWrapper.style.maxHeight = '100vh';
                 videoWrapper.style.width = '100vw';
+                videoWrapper.style.height = '100vh';
             } else {
                 videoWrapper.style.aspectRatio = '16/9';
                 videoWrapper.style.maxHeight = '75vh';
                 videoWrapper.style.width = '100%';
+                videoWrapper.style.height = 'auto';
             }
         });
 
